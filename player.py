@@ -1,5 +1,5 @@
 from circleshape import CircleShape
-from constants import PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED
+from constants import PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED, PLAYER_SHOOT_COOLDOWN
 import pygame
 from shot import Shot
 
@@ -11,6 +11,7 @@ class Player(CircleShape):
         self.image = pygame.Surface((PLAYER_RADIUS * 3, PLAYER_RADIUS * 3), pygame.SRCALPHA)
         self.rect = self.image.get_rect(center=(x, y))
         self.update_image()
+        self.timer = 0
 
     def update_image(self):
         """Redraws the player triangle on the image surface"""
@@ -51,6 +52,8 @@ class Player(CircleShape):
         
 
         self.rect.center = (self.position.x, self.position.y)
+        self.timer -= dt
+
 
 
     def move(self, dt):
@@ -58,6 +61,8 @@ class Player(CircleShape):
         self.position += forward * PLAYER_SPEED * dt
 
     def shot(self):
-        shot = Shot(self.position.x, self.position.y)
-        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
-        self.containers[0].add(shot)
+        if self.timer <= 0 :
+            shot = Shot(self.position.x, self.position.y)
+            shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
+            self.containers[0].add(shot)
+            self.timer = PLAYER_SHOOT_COOLDOWN
